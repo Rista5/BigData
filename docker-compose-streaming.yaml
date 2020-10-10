@@ -1,35 +1,38 @@
 version: "3"
 
 services:
-  # # BigData2 - Spark streaming
-  # stream-consumer:
-  #   build: ./stream-consumer
-  #   image: stream-consumer:latest
-  #   container_name: stream-consumer
-  #   depends_on: 
-  #     - kafka
-  #     - cassandra
-  #     - stream-producer
-  #   environment:
-  #     SPARK_MASTER_NAME: spark-master
-  #     SPARK_MASTER_PORT: 7077
-  #     SPARK_APPLICATION_ARGS: ''
-  #     CASSANDRA_URL: mongodb://root:root1234@mongo:27017/database
-  #     KAFKA_URL: kafka:9092
-  #     ENABLE_INIT_DAEMON: 'false'
-  #     DATA_RECEIVING_TIME_IN_SECONDS: 30
-  # stream-producer:
-  #   build: ./stream-producer
-  #   image: stream-producer:latest
-  #   container_name: stream-producer
-  #   depends_on: 
-  #     - kafka
-  #     - cassandra
-  #   environment:
-  #     PUBLISH_INTERVAL_IN_SEC: 30
-  #     HDFS_URL: hdfs://namenode:9000
-  #     CSV_FILE_PATH: /big-data/data.csv
-  #     KAFKA_URL: kafka:9092
+  # BigData2 - Spark streaming
+  stream-consumer:
+    build: ./stream-consumer
+    image: stream-consumer:latest
+    container_name: stream-consumer
+    depends_on: 
+      - kafka
+      - cassandra
+      - stream-producer
+    environment:
+      INITIAL_SLEEP_TIME_IN_SECONDS: 40
+      SPARK_MASTER_NAME: spark-master
+      SPARK_MASTER_PORT: 7077
+      SPARK_APPLICATION_ARGS: ''
+      CASSANDRA_URL: cassandra
+      CASSANDRA_PORT: 9042
+      KAFKA_URL: kafka:9092
+      ENABLE_INIT_DAEMON: 'false'
+      DATA_RECEIVING_TIME_IN_SECONDS: 30
+  stream-producer:
+    build: ./stream-producer
+    image: stream-producer:latest
+    container_name: stream-producer
+    depends_on: 
+      - kafka
+      - cassandra
+    environment:
+      INITIAL_SLEEP_TIME_IN_SECONDS: 20
+      PUBLISH_INTERVAL_IN_SEC: 5
+      HDFS_URL: hdfs://namenode:9000
+      CSV_FILE_PATH: /big-data/data.csv
+      KAFKA_URL: kafka:9092
 
   # CASSANDRA
   cassandra:

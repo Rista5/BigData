@@ -25,6 +25,16 @@ public class App
     public static void main( String[] args )
     {
         System.out.println("Producer starting");
+        String initialSleepTime = System.getenv("INITIAL_SLEEP_TIME_IN_SECONDS");
+        if (initialSleepTime != null && !initialSleepTime.equals("")) {
+            int sleep = Integer.parseInt(initialSleepTime);
+            System.out.println("Sleeping on start " + sleep + "sec");
+            try {
+                Thread.sleep(sleep * 1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         String hdfsUrl = System.getenv("HDFS_URL");
         if (hdfsUrl == null || hdfsUrl.equals("")) {
             throw new IllegalStateException("HDFS_URL environment variable must be set.");

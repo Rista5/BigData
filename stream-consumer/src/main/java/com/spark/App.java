@@ -41,6 +41,16 @@ public class App {
 
     public static void main(String[] args) {
         System.out.println("Stream consumer starting");
+        String initialSleepTime = System.getenv("INITIAL_SLEEP_TIME_IN_SECONDS");
+        if (initialSleepTime != null && !initialSleepTime.equals("")) {
+            int sleep = Integer.parseInt(initialSleepTime);
+            System.out.println("Sleeping on start " + sleep + "sec");
+            try {
+                Thread.sleep(sleep * 1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         String sparkMasterUrl = System.getenv("SPARK_MASTER_URL");
         if (sparkMasterUrl == null || sparkMasterUrl.equals("")) {
             throw new IllegalStateException("SPARK_MASTER_URL environment variable must be set.");
@@ -77,7 +87,7 @@ public class App {
         JavaInputDStream<ConsumerRecord<Object, String>> stream = KafkaUtils.createDirectStream(streamingContext,
                 LocationStrategies.PreferConsistent(), ConsumerStrategies.Subscribe(topics, kafkaParams));
 
-        String city = "Los Angeles";
+        String city = "Dayton";
 
         JavaDStream<String> receivedData = stream.map(ConsumerRecord::value);
         receivedData.print();
@@ -91,14 +101,16 @@ public class App {
             return ta;
         }).filter((ta) -> ta != null);
 
+        // turn off this filter for testing, because specific cities may be rare
         JavaDStream<TrafficAccidentData> accInCity = accidents.filter(acc -> {
-            return acc.getCity().equals(city);
+            return acc.getCity().equals(city); 
         });
 
         accidents.foreachRDD((accRdd) -> {
             Long count = accRdd.count();
             if (count <= 0) {
                 System.out.println("Empty RDD, skipping");
+                return;
             }
 
             System.out.println("All Accidents");
@@ -130,6 +142,7 @@ public class App {
             Long count = accRdd.count();
             if (count <= 0) {
                 System.out.println("Empty RDD, skipping");
+                return;
             }
 
             System.out.println("Accidents in city");

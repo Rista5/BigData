@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  # BigData - Spark submit
+  submit:
+    build: ./submit
+    image: spark-submit:latest
+    container_name: submit
+    environment:
+      HDFS_URL: hdfs://namenode:9000
+      APP_ARGS_CSV_FILE_PATH: /big-data/data.csv
+      APP_EVENTS_CSV_FILE_PATH: /big-data/events.csv
+      SPARK_MASTER_NAME: spark-master
+      SPARK_MASTER_PORT: 7077
+      SPARK_APPLICATION_ARGS: ""
+      ENABLE_INIT_DAEMON: "false"
