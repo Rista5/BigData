@@ -1,5 +1,6 @@
 package com.spark.entities;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class DurationStatistic {
@@ -90,5 +91,15 @@ public class DurationStatistic {
 		this.accidentCount = accidentCount;
 	}
 
+    @Override
+    public String toString() {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        String start = formatter.format(startDate);
+        String end = formatter.format(endDate);
+        return String.format("startDate: %s\nendDate: %s\ncityWithLongestAccident: %s\ncitiWithShortestAccident: %s\n"
+        + "minAccidentDuration: %s\nmaxAccidentDuration: %s\naverage: %s\naccidentCount: %s", start, end,
+        cityWithLongestAccident, citiWithShortestAccident, minAccidentDuration, maxAccidentDuration, average,
+        accidentCount);
+    }
     
 }

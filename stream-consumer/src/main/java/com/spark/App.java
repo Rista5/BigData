@@ -2,8 +2,8 @@ package com.spark;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -92,33 +92,56 @@ public class App {
         }).filter((ta) -> ta != null);
 
         JavaDStream<TrafficAccidentData> accInCity = accidents.filter(acc -> {
-            return true;//acc.getCity().equals(city);
+            return acc.getCity().equals(city);
         });
 
         accidents.foreachRDD((accRdd) -> {
+            Long count = accRdd.count();
+            if (count <= 0) {
+                System.out.println("Empty RDD, skipping");
+            }
+
+            System.out.println("All Accidents");
             Map<String, Long> cityAccidentCount = accRdd
-                    .mapToPair((ta) -> new Tuple2<String, TrafficAccidentData>(ta.getCity(), ta)).groupByKey()
-                    .countByKey();
+                    .mapToPair((ta) -> new Tuple2<String, Long>(ta.getCity(), 1l))
+                    .reduceByKey((a, b) -> a + b)
+                    .collectAsMap();
 
             TrafficAccidentData starting = accRdd.min(new StartTimeComparator());
             TrafficAccidentData ending = accRdd.max(new StartTimeComparator());
 
+            System.out.println("Accidents in each city");
+            Iterator<String> iter =cityAccidentCount.keySet().iterator();
+            while(iter.hasNext()) {
+                String c = iter.next();
+                System.out.println("City: "+c+", AccCount: "+cityAccidentCount.get(c));
+            }
             Tuple2<String, Long> cityWithMaxAcc = findCitiesWithMostAccidents(cityAccidentCount);
             CitiesWithMostAccidents cwma = new CitiesWithMostAccidents(starting.getStartTime(), ending.getEndTime(),
                     cityWithMaxAcc._1(), cityWithMaxAcc._2());
 
+            
+            System.out.println("CITIES_WITH_MOST_ACCIDENTS");
+            System.out.println(cwma.toString());
             saveCitiesWithMostAccidents(cwma, cassandraUrl, cassandraPort);
         });
 
         accInCity.foreachRDD((accRdd) -> {
+            Long count = accRdd.count();
+            if (count <= 0) {
+                System.out.println("Empty RDD, skipping");
+            }
 
+            System.out.println("Accidents in city");
+            
             TrafficAccidentData starting = accRdd.min(new StartTimeComparator());
             TrafficAccidentData ending = accRdd.max(new StartTimeComparator());
             TrafficAccidentData minimum = accRdd.min(new DurationComparator());
             TrafficAccidentData maximum = accRdd.max(new DurationComparator());
+            System.out.println(String.format("STATISTICS starting: %s,\nending: %s,\nminimum: %s,\nmaximum: %s", starting,ending,minimum,maximum));
 
             JavaRDD<Long> durations = accRdd.map((a) -> a.getDuration());
-            Long count = accRdd.count();
+            
             Long durationSum = durations.reduce((duration, accumulator) -> {
                 return duration + accumulator;
             });
@@ -126,7 +149,9 @@ public class App {
             DurationStatistic statistic = new DurationStatistic(starting.getStartTime(), ending.getEndTime(),
                     maximum.getCity(), maximum.getDuration(), minimum.getCity(), minimum.getDuration(), averageDuration,
                     count);
-
+            
+            System.out.println("DURATION_STATISTIC");
+            System.out.println(statistic.toString());
             saveDurationStatistic(statistic, cassandraUrl, cassandraPort);
         });
 
@@ -266,9 +291,5 @@ public class App {
 
         session.close();
         conn.close();
-    }
-
-    private static String getTimestampString(Date date) {
-        return Long.toString(date.getTime() / 1000);
     }
 }

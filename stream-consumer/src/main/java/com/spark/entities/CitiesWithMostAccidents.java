@@ -1,6 +1,6 @@
 package com.spark.entities;
 
-import java.time.LocalDate;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class CitiesWithMostAccidents {
@@ -49,4 +49,11 @@ public class CitiesWithMostAccidents {
         this.accidentCount = accidentCount;
     }
     
+    @Override
+    public String toString() {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        String start = formatter.format(startDate);
+        String end = formatter.format(endDate);
+        return String.format("start: %s\nend: %s\ncities: %s\naccidentCount: %o", start, end, cities, accidentCount);
+    }
 }

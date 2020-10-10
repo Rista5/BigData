@@ -1,7 +1,8 @@
-//package com.spark;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.hadoop.fs.CommonConfigurationKeys;
@@ -23,6 +24,7 @@ public class App
 
     public static void main( String[] args )
     {
+        System.out.println("Producer starting");
         String hdfsUrl = System.getenv("HDFS_URL");
         if (hdfsUrl == null || hdfsUrl.equals("")) {
             throw new IllegalStateException("HDFS_URL environment variable must be set.");
@@ -49,18 +51,23 @@ public class App
         FSDataInputStream inputStream = null;
 
         try {
+            System.out.println("Opening HDFS");
             fs = openHDFS(hdfsUrl);
+            System.out.println("Creating input stream");
             inputStream = createHDFSInputStream(fs, csvFilePath);
 
-            String line = inputStream.readLine();
+            String line = inputStream.readLine(); 
             line = inputStream.readLine(); // skip csv header
 
             while (line != null) {
                 
+                System.out.println("Creating ProducerRecord");
                 ProducerRecord<String, String> rec = new ProducerRecord<String,String>(AccidentsTopic, line);
+                System.out.println("Sending");
                 producer.send(rec);
 
-                System.out.println("Published line: " + line);
+                System.out.println("Publish to accidents");
+
                 Thread.sleep(publishInterval * 1000);
 
                 line = inputStream.readLine();
@@ -111,5 +118,21 @@ public class App
         }
         
         return fs.open(path);
+    }
+
+    private static String[] readLines(FSDataInputStream stream, int lineCount) throws IOException {
+        int counter = 0;
+        if (lineCount < 0)
+            return  (String[]) new ArrayList<String>().toArray();
+
+        List<String> result = new ArrayList<String>(lineCount);
+        String line = stream.readLine();
+        while (line != null && counter < lineCount) {
+            result.add(line);
+            line = stream.readLine();
+            counter++;
+        }
+        
+        return result.toArray(new String[0]);
     }
 }

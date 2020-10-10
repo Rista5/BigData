@@ -71,10 +71,10 @@ public class TrafficAccidentData implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s", 
+        return String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s", 
             id, source, tmc, severity, startTime, endTime, startLat, startLng, endLat, 
             endLng, distanceInMeters, description, number, street, side, city, county, 
-            state, zipcode, country, timezone
+            state, zipcode, country, timezone, duration
         );
     }
 
