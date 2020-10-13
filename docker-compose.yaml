@@ -29,6 +29,7 @@ services:
       - hadoop_namenode:/hadoop/dfs/name
       - ~/big-data/data.csv:/big-data/data.csv
       - ~/big-data/events.csv:/big-data/events.csv
+      - ~/big-data/filt-data.csv:/big-data/filt-data.csv
     environment:
       - CLUSTER_NAME=test
     env_file:

@@ -5,15 +5,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.spark</groupId>
-  <artifactId>stream-consumer</artifactId>
+  <artifactId>stream-classificaton</artifactId>
   <version>1.0-SNAPSHOT</version>
 
-  <name>stream-consumer</name>
+  <name>stream-classificaton</name>
 
   <properties>
     <kafka.version>2.4.0</kafka.version>
     <spark.version>2.4.3</spark.version>
-    <datastax-driver.version>4.6.0</datastax-driver.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
@@ -36,19 +35,9 @@
       <version>${spark.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.datastax.oss</groupId>
-      <artifactId>java-driver-core</artifactId>
-      <version>${datastax-driver.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.datastax.oss</groupId>
-      <artifactId>java-driver-mapper-runtime</artifactId>
-      <version>${datastax-driver.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.datastax.oss</groupId>
-      <artifactId>java-driver-mapper-processor</artifactId>
-      <version>${datastax-driver.version}</version>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-mllib_2.11</artifactId>
+      <version>${spark.version}</version>
     </dependency>
   </dependencies>
 

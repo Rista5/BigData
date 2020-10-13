@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.spark.ml.Pipeline;
+import org.apache.spark.ml.classification.LogisticRegression;
+import org.apache.spark.ml.classification.LogisticRegressionModel;
 import org.apache.spark.ml.classification.RandomForestClassificationModel;
 import org.apache.spark.ml.classification.RandomForestClassifier;
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator;
@@ -26,19 +28,26 @@ public class App {
 
         String sparkMasterUrl = System.getenv("SPARK_MASTER_URL");
         String hdfsUrl = System.getenv("HDFS_URL");
-        String indexerPath = hdfsUrl + "/big-data/indexers/";
-        String modelPath = hdfsUrl + "/big-data/model";
+        String indexersHdfsPath = System.getenv("INDEXERS_PATH");
+        String modelHdfsPath = System.getenv("MODEL_PATH");
         String dataUrl = args[0];
-
-        String csvFileUrl = hdfsUrl + dataUrl;
 
         if (isNullOrEmpty(sparkMasterUrl)) {
             throw new IllegalStateException("SPARK_MASTER_URL environment variable must be set.");
         }
-
         if (isNullOrEmpty(hdfsUrl)) {
             throw new IllegalStateException("HDFS_URL environment variable must be set");
         }
+        if (isNullOrEmpty(indexersHdfsPath)) {
+            throw new IllegalStateException("HDFS_URL environment variable must be set");
+        }
+        if (isNullOrEmpty(modelHdfsPath)) {
+            throw new IllegalStateException("HDFS_URL environment variable must be set");
+        }
+
+        String csvFileUrl = hdfsUrl + dataUrl;
+        String indexerPath = hdfsUrl + indexersHdfsPath;
+        String modelPath = hdfsUrl + modelHdfsPath;
 
         SparkSession spark = SparkSession.builder().appName("Acciedents analysis").master(sparkMasterUrl).getOrCreate();
         System.out.println("Spark context created");
@@ -107,7 +116,7 @@ public class App {
         
         String[] featureCols = removeColumns(transfromed.columns(), columnsToRemove);
 
-        System.out.println("FEATURES: " +Arrays.toString(featureCols));
+        System.out.println("FEATURES: " + Arrays.toString(featureCols));
         VectorAssembler vectorAssembler = new VectorAssembler()
             .setInputCols(featureCols)
             .setOutputCol(features);
@@ -129,6 +138,14 @@ public class App {
         
         System.out.println("TRAINING MODEL");
         RandomForestClassificationModel model = rf.fit(trainingSet);
+
+        // System.out.println("Creaeting Logistic Regression model");
+        // LogisticRegression lr = new LogisticRegression()
+        //     .setLabelCol(labelCol)
+        //     .setFeaturesCol(features);
+        // System.out.println("Training LR model");
+        // LogisticRegressionModel model = lr.fit(trainingSet);
+            
 
         System.out.println("Saving model");
         try {
