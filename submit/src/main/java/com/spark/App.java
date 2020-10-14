@@ -66,16 +66,6 @@ public class App
         spark.close();
     }
 
-    static void cityTest(Dataset<Row> ds)
-    {
-        ds.filter(ds.col("City").isNotNull().and(ds.col("TMC").isNotNull()))
-            .groupBy(ds.col("City"), ds.col("TMC"))
-            .agg(functions.count(ds.col("TMC")))
-            .sort(ds.col("City"), ds.col("TMC"))
-            .show(1000);
-        System.out.println("City Test executed");
-    }
-
     static void mostFrequentAccidentInCity(Dataset<Row> ds, Dataset<Row> events, String city,
         String startTime, String endTime, int countToShow)
     {
