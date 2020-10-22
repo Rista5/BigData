@@ -79,8 +79,9 @@ public class App {
 
         SparkConf conf = new SparkConf().setAppName("Spark Streaming").setMaster(sparkMasterUrl);
         JavaStreamingContext streamingContext = new JavaStreamingContext(conf, new Duration(dataReceivingTime * 1000));
-        streamingContext.checkpoint("./checkpoint");
-        System.out.println("SPark started");
+        
+        streamingContext.sparkContext().setLogLevel("WARN");
+        System.out.println("Spark started");
 
         Map<String, Object> kafkaParams = getKafkaParams(kafkaUrl);
         Collection<String> topics = Collections.singletonList(AccidentsKafkaTopic);
@@ -113,7 +114,6 @@ public class App {
                 return;
             }
 
-            System.out.println("All Accidents");
             Map<String, Long> cityAccidentCount = accRdd
                     .mapToPair((ta) -> new Tuple2<String, Long>(ta.getCity(), 1l))
                     .reduceByKey((a, b) -> a + b)

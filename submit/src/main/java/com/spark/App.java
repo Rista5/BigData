@@ -36,7 +36,7 @@ public class App
             .appName("Acciedents analysis")
             .master(sparkMasterUrl)
             .getOrCreate();
-
+        spark.sparkContext().setLogLevel("WARN");
         Dataset<Row> dataset = spark.read()
             .option("header", "true")
             .csv(csvFileUrl);
@@ -58,7 +58,7 @@ public class App
         averageDurationPerAccidentTypeInCity(dataset, events, "Los Angeles", 
             "2015-03-09 07:00:00", "2021-03-09 07:00:00");
 
-        System.out.println("Average Duration Per Accident Type In City");
+        System.out.println("Weather conditions during accidents");
         weatherConditionsDuringAcciedents(dataset, "Los Angeles", 
             "2015-03-09 07:00:00", "2021-03-09 07:00:00");
 

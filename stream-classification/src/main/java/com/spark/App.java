@@ -96,6 +96,7 @@ public class App {
         }
 
         SparkSession spark = SparkSession.builder().appName("Stream-Classification").master(sparkMasterUrl).getOrCreate();
+        spark.sparkContext().setLogLevel("WARN");
         JavaSparkContext javaSparkContext = JavaSparkContext.fromSparkContext(spark.sparkContext());
         JavaStreamingContext streamingContext = new JavaStreamingContext(javaSparkContext, new Duration(dataReceivingTime * 1000));
         System.out.println("Spark started");
@@ -108,7 +109,6 @@ public class App {
         JavaDStream<Row> rowStream = stream.map((record) -> {
             return createRow(record.value());
         }).filter((r) -> !r.anyNull());
-        // JavaDStream<Row> notNull = rowStream.filter((r) -> !r.anyNull());
         
         String[] columnsToRemove = new String[]{"TMC","Severity","Street","City","State","Country","Weather_Condition","StreetIndex"} ;
         String features = "Features";
